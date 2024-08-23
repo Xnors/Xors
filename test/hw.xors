@@ -1,0 +1,11 @@
+use std;
+
+std::out("hello world");
+
+for 5{
+    std::out("hello world");
+}
+
+for i <- 1...5{
+    std::out(i);
+}
