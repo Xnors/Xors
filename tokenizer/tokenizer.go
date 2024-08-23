@@ -1,9 +1,14 @@
 package tokenizer
 
 import (
+	"strconv"
 	"strings"
 )
 
+func isNumber(s string) bool {
+	_, err := strconv.ParseFloat(s, 64)
+	return err == nil
+}
 
 // filterEmptyStrings 移除切片中的所有多余的换行符和空格
 func filterEmptyStrings(slice []string) []string {
@@ -22,6 +27,7 @@ func Tokenize(code string) []string {
 	var isInsideString bool // 在字符串中(引号中)
 	var stringBuidler = strings.Builder{}
 	var alreadySeenColon bool = false // 已经遇到冒号了
+	var seenNumber bool = false       // 数字的个数
 
 	var addToken = func(token string) {
 		tokens = append(tokens, token)
@@ -30,7 +36,11 @@ func Tokenize(code string) []string {
 		if isInsideString {
 			stringBuidler.WriteRune(char)
 			return
+		}else if seenNumber {
+			stringBuidler.WriteRune(char)
+			return
 		}
+		
 
 		addToken(stringBuidler.String())
 
@@ -60,7 +70,14 @@ func Tokenize(code string) []string {
 		case '{', '}':
 			write_reset_addchar(char)
 		case '1', '2', '3', '4', '5', '6', '7', '8', '9', '0':
-			write_reset_addchar(char)
+			if seenNumber == false {
+				seenNumber = true
+				stringBuidler.WriteRune(char)
+			} else {
+				seenNumber = false
+				stringBuidler.WriteRune(char)
+				// write_reset_addchar(char)
+			}
 		case ':':
 			if alreadySeenColon {
 				addToken("::")
