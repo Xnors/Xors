@@ -1,14 +1,8 @@
 package tokenizer
 
 import (
-	"strconv"
 	"strings"
 )
-
-func isNumber(s string) bool {
-	_, err := strconv.ParseFloat(s, 64)
-	return err == nil
-}
 
 // filterEmptyStrings 移除切片中的所有多余的换行符和空格
 func filterEmptyStrings(slice []string) []string {
@@ -36,11 +30,13 @@ func Tokenize(code string) []string {
 		if isInsideString {
 			stringBuidler.WriteRune(char)
 			return
-		}else if seenNumber {
+		} else if seenNumber {
 			stringBuidler.WriteRune(char)
 			return
 		}
-		
+		if alreadySeenColon {
+			alreadySeenColon = false
+		}
 
 		addToken(stringBuidler.String())
 
@@ -70,21 +66,22 @@ func Tokenize(code string) []string {
 		case '{', '}':
 			write_reset_addchar(char)
 		case '1', '2', '3', '4', '5', '6', '7', '8', '9', '0':
-			if seenNumber == false {
+			if !seenNumber {
 				seenNumber = true
 				stringBuidler.WriteRune(char)
 			} else {
 				seenNumber = false
 				stringBuidler.WriteRune(char)
-				// write_reset_addchar(char)
 			}
 		case ':':
 			if alreadySeenColon {
-				addToken("::")
-				stringBuidler.Reset()
+				stringBuidler.WriteRune(char)
+				// stringBuidler.WriteRune(char)
+				write_reset(char)
 				alreadySeenColon = false
 			} else {
 				alreadySeenColon = true
+				stringBuidler.WriteRune(char)
 			}
 
 		case ' ':
@@ -92,6 +89,9 @@ func Tokenize(code string) []string {
 
 		case ';':
 			write_reset_addchar(char)
+
+		case ',':
+			write_reset(char)
 
 		default:
 			if !(char == '\t' || char == '\n') {

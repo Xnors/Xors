@@ -1,9 +1,9 @@
 package main
 
 import (
-	t2bc "Xors/tokens2bytecodes"
-	runner "Xors/runBytecodes"
+	vm "Xors/XVM"
 	"Xors/tokenizer"
+	t2bc "Xors/tokens2bytecodes"
 	"fmt"
 )
 
@@ -21,11 +21,18 @@ func main() {
 	// 	std::out(i);
 	// }
 	// `
-	code:=`
-	out "hello world";
-	out "hello worl";
-	out 114514;
-	out a;
+	code := `
+	use strings;
+
+	out "第一句";
+	out 114+514;
+	out strings::merge("hello" , "world");
+
+	fun int_add | a int b int | int{
+		ret a+b;
+	}
+	
+	out int_add(10, 20);
 	`
 
 	tokens := tokenizer.Tokenize(code)
@@ -41,6 +48,6 @@ func main() {
 
 	fmt.Print("\n\n以下是程序运行结果：\n\n")
 
-	runner.RunBytecodes(bytecodes)
+	vm.RunBytecodes(bytecodes)
 
 }

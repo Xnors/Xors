@@ -1,4 +1,4 @@
-package runbytecodes
+package XVM
 
 import (
 	st "Xors/stack"
